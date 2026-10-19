@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - SmartAttend</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-face-viewfinder"></i>
+                <span>SmartAttend</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#overview" class="nav-item active" data-section="overview">
+                <i class="fas fa-grid-2"></i>
+                <span>Overview</span>
+            </a>
+            <a href="#schedule" class="nav-item" data-section="schedule">
+                <i class="fas fa-calendar-days"></i>
+                <span>Schedule</span>
+            </a>
+            <a href="#attendance" class="nav-item" data-section="attendance">
+                <i class="fas fa-clipboard-check"></i>
+                <span>Attendance</span>
+            </a>
+            <a href="#homework" class="nav-item" data-section="homework">
+                <i class="fas fa-book-open"></i>
+                <span>Homework</span>
+            </a>
+            <a href="#quizzes" class="nav-item" data-section="quizzes">
+                <i class="fas fa-file-pen"></i>
+                <span>Quizzes</span>
+            </a>
+            <a href="#ai-assistant" class="nav-item" data-section="ai-assistant">
+                <i class="fas fa-robot"></i>
+                <span>AI Assistant</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name">{{ user.name }}</span>
+                    <span class="user-role">Student</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationBadge">0</span>
+                </button>
+                <button class="header-btn greeting-btn" id="greetingBtn" title="Play Greeting">
+                    <i class="fas fa-volume-high"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h1>Welcome back, <span id="studentName">{{ user.name }}</span>! 👋</h1>
+                    <p id="welcomeMessage">Here's what's happening today</p>
+                </div>
+                <div class="welcome-date">
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card attendance-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="attendanceRate">--%</span>
+                        <span class="stat-label">Attendance Rate</span>
+                    </div>
+                    <div class="stat-chart">
+                        <div class="mini-chart" id="attendanceChart"></div>
+                    </div>
+                </div>
+                <div class="stat-card homework-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="pendingHomework">--</span>
+                        <span class="stat-label">Pending Homework</span>
+                    </div>
+                </div>
+                <div class="stat-card quiz-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-pen"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="upcomingQuizzes">--</span>
+                        <span class="stat-label">Upcoming Quizzes</span>
+                    </div>
+                </div>
+                <div class="stat-card classes-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="todayClasses">--</span>
+                        <span class="stat-label">Classes Today</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="dashboard-grid">
+                <!-- Today's Schedule -->
+                <div class="dashboard-card schedule-card-large">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-days"></i> Today's Schedule</h3>
+                        <a href="#schedule" class="view-all">View All</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="todayScheduleList" class="schedule-list">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading schedule...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Class -->
+                <div class="dashboard-card next-class-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-hourglass-half"></i> Next Class</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="nextClassInfo" class="next-class-info">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Summary -->
+                <div class="dashboard-card attendance-summary-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-pie"></i> Attendance Summary</h3>
+                        <a href="#attendance" class="view-all">Details</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="attendanceSummary" class="attendance-summary">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Homework -->
+                <div class="dashboard-card homework-card-medium">
+                    <div class="card-header">
+                        <h3><i class="fas fa-book-open"></i> Pending Homework</h3>
+                        <a href="#homework" class="view-all">View All</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="pendingHomeworkList" class="homework-list">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading homework...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Quizzes -->
+                <div class="dashboard-card quizzes-card-medium">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-pen"></i> Upcoming Quizzes</h3>
+                        <a href="#quizzes" class="view-all">View All</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="upcomingQuizzesList" class="quizzes-list">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading quizzes...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Attendance -->
+                <div class="dashboard-card recent-attendance-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Recent Attendance</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="recentAttendanceList" class="attendance-list">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading attendance...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Preview -->
+                <div class="dashboard-card ai-assistant-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+                        <a href="#ai-assistant" class="view-all">Open Chat</a>
+                    </div>
+                    <div class="card-content">
+                        <div class="ai-preview">
+                            <div class="ai-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="ai-message">
+                                <p>Hi! I can help you with:</p>
+                                <ul>
+                                    <li>📅 Class schedules</li>
+                                    <li>📊 Attendance info</li>
+                                    <li>📚 Homework queries</li>
+                                    <li>📝 Quiz reminders</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <button class="btn-chat" onclick="showSection('ai-assistant')">
+                            <i class="fas fa-comment-dots"></i>
+                            Start Chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div class="content-section" id="schedule-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-days"></i> Class Schedule</h2>
+                <p>View your complete weekly schedule</p>
+            </div>
+            <div class="schedule-container">
+                <div class="schedule-tabs">
+                    <button class="tab-btn active" data-day="all">All Days</button>
+                    <button class="tab-btn" data-day="0">Monday</button>
+                    <button class="tab-btn" data-day="1">Tuesday</button>
+                    <button class="tab-btn" data-day="2">Wednesday</button>
+                    <button class="tab-btn" data-day="3">Thursday</button>
+                    <button class="tab-btn" data-day="4">Friday</button>
+                </div>
+                <div class="schedule-table-container">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Subject</th>
+                                <th>Time</th>
+                                <th>Room</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullScheduleTable">
+                            <tr><td colspan="4" class="loading-cell">
+                                <div class="spinner"></div> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Section -->
+        <div class="content-section" id="attendance-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-clipboard-check"></i> Attendance Records</h2>
+                <p>Track your attendance history and statistics</p>
+            </div>
+            <div class="attendance-container">
+                <div class="attendance-stats-cards">
+                    <div class="attendance-stat present">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-count" id="statPresent">--</span>
+                            <span class="stat-label">Present</span>
+                        </div>
+                    </div>
+                    <div class="attendance-stat late">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-count" id="statLate">--</span>
+                            <span class="stat-label">Late</span>
+                        </div>
+                    </div>
+                    <div class="attendance-stat absent">
+                        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-count" id="statAbsent">--</span>
+                            <span class="stat-label">Absent</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="attendance-table-container">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Check-in Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullAttendanceTable">
+                            <tr><td colspan="4" class="loading-cell">
+                                <div class="spinner"></div> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Homework Section -->
+        <div class="content-section" id="homework-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-book-open"></i> Homework & Assignments</h2>
+                <p>View and submit your homework assignments</p>
+            </div>
+            <div class="homework-container">
+                <div class="homework-tabs">
+                    <button class="tab-btn active" data-filter="pending">Pending</button>
+                    <button class="tab-btn" data-filter="completed">Completed</button>
+                </div>
+                <div id="homeworkList" class="homework-cards">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Loading homework...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quizzes Section -->
+        <div class="content-section" id="quizzes-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-file-pen"></i> Quizzes & Exams</h2>
+                <p>View upcoming quizzes and take online assessments</p>
+            </div>
+            <div class="quizzes-container">
+                <div class="quizzes-tabs">
+                    <button class="tab-btn active" data-filter="upcoming">Upcoming</button>
+                    <button class="tab-btn" data-filter="completed">Completed</button>
+                </div>
+                <div id="quizzesList" class="quizzes-cards">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <span>Loading quizzes...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant Section -->
+        <div class="content-section" id="ai-assistant-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-robot"></i> AI Study Assistant</h2>
+                <p>Ask me anything about your classes, homework, or attendance</p>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message ai-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>Hello! I'm your AI Study Assistant. I can help you with:</p>
+                            <ul>
+                                <li>📅 Checking your class schedule</li>
+                                <li>📊 Viewing attendance statistics</li>
+                                <li>📚 Finding pending homework</li>
+                                <li>📝 Getting quiz information</li>
+                            </ul>
+                            <p>What would you like to know?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="chatInput" placeholder="Type your question here..." autocomplete="off">
+                        <button id="sendMessageBtn" class="btn-send">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="chat-suggestions">
+                        <button class="suggestion-chip" data-question="What classes do I have today?">Today's schedule</button>
+                        <button class="suggestion-chip" data-question="What is my attendance percentage?">Attendance %</button>
+                        <button class="suggestion-chip" data-question="What homework do I have?">Pending homework</button>
+                        <button class="suggestion-chip" data-question="What quizzes are coming up?">Upcoming quizzes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Homework Submission Modal -->
+    <div class="modal" id="submitHomeworkModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Submit Homework</h3>
+                <button class="modal-close" onclick="closeModal('submitHomeworkModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="submitHomeworkForm">
+                    <input type="hidden" id="submitHwId">
+                    <div class="form-group">
+                        <label>Homework</label>
+                        <p id="submitHwTitle" class="form-static"></p>
+                    </div>
+                    <div class="form-group">
+                        <label for="submissionText">Your Answer</label>
+                        <textarea id="submissionText" rows="6" placeholder="Type your answer here..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="submissionFile">Or Upload File</label>
+                        <div class="file-upload">
+                            <input type="file" id="submissionFile" class="file-input">
+                            <div class="file-upload-area">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Drag & drop or click to upload</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('submitHomeworkModal')">Cancel</button>
+                <button class="btn-primary" id="confirmSubmitHomework">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div class="modal" id="takeQuizModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="quizModalTitle">Take Quiz</h3>
+                <button class="modal-close" onclick="closeModal('takeQuizModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="quizQuestions" class="quiz-questions">
+                    <!-- Questions loaded dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('takeQuizModal')">Cancel</button>
+                <button class="btn-primary" id="confirmSubmitQuiz">Submit Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Grade Modal -->
+    <div class="modal" id="viewGradeModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-star"></i> Your Grade</h3>
+                <button class="modal-close" onclick="closeModal('viewGradeModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="gradeDetails" class="grade-details">
+                    <!-- Grade details loaded dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeModal('viewGradeModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel" style="display: none;">
+        <div class="notifications-header">
+            <h4>Notifications</h4>
+            <button class="mark-all-read">Mark all read</button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <!-- Notifications loaded dynamically -->
+        </div>
+    </div>
+
+    <script>
+        const studentId = {{ user.id }};
+    </script>
+    <script src="{{ url_for('static', filename='js/student_dashboard.js') }}"></script>
+</body>
+</html>

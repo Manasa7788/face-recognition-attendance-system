@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="landing-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-face-viewfinder"></i>
+                <span>SmartAttend</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#login" class="btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg-animation">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-sparkles"></i>
+                <span>AI-Powered Attendance System</span>
+            </div>
+            <h1 class="hero-title">
+                Smart Attendance
+                <span class="gradient-text">Made Simple</span>
+            </h1>
+            <p class="hero-subtitle">
+                Experience the future of attendance tracking with our AI-powered face recognition system. 
+                Fast, secure, and effortless for students and teachers alike.
+            </p>
+            <div class="hero-buttons">
+                <a href="#login" class="btn-glow btn-primary-large">
+                    <i class="fas fa-rocket"></i>
+                    Get Started
+                </a>
+                <a href="#features" class="btn-secondary-large">
+                    <i class="fas fa-play-circle"></i>
+                    Learn More
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">99.9%</span>
+                    <span class="stat-label">Accuracy</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">< 2s</span>
+                    <span class="stat-label">Recognition</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">256-bit</span>
+                    <span class="stat-label">Encryption</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="face-scan-animation">
+                        <div class="face-frame">
+                            <div class="scan-line"></div>
+                            <i class="fas fa-face-smile"></i>
+                        </div>
+                        <div class="scan-points">
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                        <div class="success-check">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <span class="section-tag">Features</span>
+            <h2>Everything You Need</h2>
+            <p>A complete attendance management solution powered by cutting-edge AI technology</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-face-viewfinder"></i>
+                </div>
+                <h3>Face Recognition</h3>
+                <p>Advanced AI-powered face recognition for instant, contactless attendance marking with 99.9% accuracy.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI Assistant</h3>
+                <p>Your personal AI study assistant that answers questions about schedules, homework, and attendance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Real-time Analytics</h3>
+                <p>Comprehensive dashboards with attendance statistics, trends, and insights for better decision making.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Enterprise-grade security with encrypted face data and network/location-based access controls.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-screen"></i>
+                </div>
+                <h3>Mobile Friendly</h3>
+                <p>Access your dashboard from any device. Responsive design that works perfectly on phones and tablets.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-export"></i>
+                </div>
+                <h3>Export Reports</h3>
+                <p>Download attendance reports in CSV or Excel format with customizable date ranges and filters.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="section-header">
+            <span class="section-tag">Process</span>
+            <h2>How It Works</h2>
+            <p>Simple, fast, and secure attendance in three easy steps</p>
+        </div>
+        <div class="steps-container">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <div class="step-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3>Face Registration</h3>
+                <p>Students register their face once using the webcam. The system securely stores the face encoding.</p>
+            </div>
+            <div class="step-connector">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <div class="step-icon">
+                    <i class="fas fa-scan"></i>
+                </div>
+                <h3>Quick Scan</h3>
+                <p>Simply look at the camera when entering class. The AI recognizes you in under 2 seconds.</p>
+            </div>
+            <div class="step-connector">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <div class="step-card">
+                <div class="step-number">03</div>
+                <div class="step-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h3>Attendance Marked</h3>
+                <p>Your attendance is automatically recorded with timestamp and location for verification.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login" class="login-section">
+        <div class="section-header">
+            <span class="section-tag">Get Started</span>
+            <h2>Choose Your Role</h2>
+            <p>Select your role to continue to the dashboard</p>
+        </div>
+        <div class="login-cards">
+            <a href="/login/student" class="login-card student-card">
+                <div class="login-card-bg"></div>
+                <div class="login-card-content">
+                    <div class="login-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>I'm a Student</h3>
+                    <p>View your schedule, check attendance, submit assignments, and chat with AI assistant.</p>
+                    <div class="login-arrow">
+                        <span>Continue</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </a>
+            <a href="/login/teacher" class="login-card teacher-card">
+                <div class="login-card-bg"></div>
+                <div class="login-card-content">
+                    <div class="login-icon">
+                        <i class="fas fa-chalkboard-user"></i>
+                    </div>
+                    <h3>I'm a Teacher</h3>
+                    <p>Manage students, create schedules, view attendance reports, and configure settings.</p>
+                    <div class="login-arrow">
+                        <span>Continue</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <i class="fas fa-face-viewfinder"></i>
+                    <span>SmartAttend</span>
+                </div>
+                <p>AI-powered attendance management system for modern educational institutions.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How It Works</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 SmartAttend. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

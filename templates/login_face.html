@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Login - SmartAttend</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="login-face-page">
+    <div class="login-face-container">
+        <!-- Back Button -->
+        <a href="/" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Home</span>
+        </a>
+
+        <div class="login-face-card">
+            <div class="login-face-header">
+                <div class="role-badge {{ role }}">
+                    <i class="fas fa-{{ 'user-graduate' if role == 'student' else 'chalkboard-user' }}"></i>
+                    <span>{{ role|title }} Login</span>
+                </div>
+                <h1>Face Recognition Login</h1>
+                <p>Position your face in the center of the camera frame</p>
+            </div>
+
+            <div class="camera-container">
+                <div class="camera-wrapper">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="capture-canvas" style="display: none;"></canvas>
+                    
+                    <!-- Face Guide Overlay -->
+                    <div class="face-guide">
+                        <div class="face-oval"></div>
+                        <div class="guide-text">Align your face within the oval</div>
+                    </div>
+                    
+                    <!-- Scanning Animation -->
+                    <div class="scanning-overlay" id="scanningOverlay" style="display: none;">
+                        <div class="scan-line"></div>
+                        <div class="scan-text">Scanning...</div>
+                    </div>
+                    
+                    <!-- Success Animation -->
+                    <div class="success-overlay" id="successOverlay" style="display: none;">
+                        <div class="success-circle">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="success-text">Verified!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-actions">
+                <button id="captureBtn" class="btn-capture">
+                    <i class="fas fa-camera"></i>
+                    <span>Verify Face</span>
+                </button>
+                <p class="capture-hint">Click the button or press Space to capture</p>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="statusMessage" class="status-message" style="display: none;">
+                <div class="status-icon"></div>
+                <div class="status-text"></div>
+            </div>
+
+            <!-- Location Permission -->
+            <div class="location-notice">
+                <i class="fas fa-location-dot"></i>
+                <span>Location access may be required for attendance verification</span>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="login-instructions">
+            <div class="instruction-item">
+                <i class="fas fa-lightbulb"></i>
+                <span>Ensure good lighting on your face</span>
+            </div>
+            <div class="instruction-item">
+                <i class="fas fa-user"></i>
+                <span>Remove glasses or masks if possible</span>
+            </div>
+            <div class="instruction-item">
+                <i class="fas fa-arrows-to-circle"></i>
+                <span>Center your face in the frame</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const role = '{{ role }}';
+    </script>
+    <script src="{{ url_for('static', filename='js/face_login.js') }}"></script>
+</body>
+</html>

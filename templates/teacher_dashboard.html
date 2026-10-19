@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - SmartAttend</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-page">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-face-viewfinder"></i>
+                <span>SmartAttend</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#overview" class="nav-item active" data-section="overview">
+                <i class="fas fa-grid-2"></i>
+                <span>Overview</span>
+            </a>
+            <a href="#students" class="nav-item" data-section="students">
+                <i class="fas fa-users"></i>
+                <span>Students</span>
+            </a>
+            <a href="#attendance" class="nav-item" data-section="attendance">
+                <i class="fas fa-clipboard-check"></i>
+                <span>Attendance</span>
+            </a>
+            <a href="#schedules" class="nav-item" data-section="schedules">
+                <i class="fas fa-calendar-days"></i>
+                <span>Schedules</span>
+            </a>
+            <a href="#homework" class="nav-item" data-section="homework">
+                <i class="fas fa-book-open"></i>
+                <span>Homework</span>
+            </a>
+            <a href="#quizzes" class="nav-item" data-section="quizzes">
+                <i class="fas fa-file-pen"></i>
+                <span>Quizzes</span>
+            </a>
+            <a href="#restrictions" class="nav-item" data-section="restrictions">
+                <i class="fas fa-shield-halved"></i>
+                <span>Restrictions</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name">{{ user.name }}</span>
+                    <span class="user-role">Teacher</span>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notificationBadge">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h1>Welcome, <span id="teacherName">{{ user.name }}</span>! 👋</h1>
+                    <p>Manage your classes and track student attendance</p>
+                </div>
+                <div class="welcome-date">
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card students-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalStudents">--</span>
+                        <span class="stat-label">Total Students</span>
+                    </div>
+                </div>
+                <div class="stat-card classes-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-days"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalSchedules">--</span>
+                        <span class="stat-label">Class Schedules</span>
+                    </div>
+                </div>
+                <div class="stat-card attendance-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="todayAttendance">--</span>
+                        <span class="stat-label">Today's Attendance</span>
+                    </div>
+                </div>
+                <div class="stat-card homework-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="activeHomework">--</span>
+                        <span class="stat-label">Active Homework</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="dashboard-grid">
+                <!-- Today's Attendance -->
+                <div class="dashboard-card attendance-card-large">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clipboard-check"></i> Today's Attendance</h3>
+                        <a href="#attendance" class="view-all">View All</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="todayAttendanceList" class="attendance-list">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading attendance...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card quick-actions-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" onclick="openModal('addStudentModal')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Add Student</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="openModal('addScheduleModal')">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>Add Schedule</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="openModal('addHomeworkModal')">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Add Homework</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="openModal('addQuizModal')">
+                                <i class="fas fa-file-circle-plus"></i>
+                                <span>Add Quiz</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class Schedules -->
+                <div class="dashboard-card schedules-card-medium">
+                    <div class="card-header">
+                        <h3><i class="fas fa-calendar-days"></i> Class Schedules</h3>
+                        <a href="#schedules" class="view-all">Manage</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="schedulesList" class="schedules-list">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading schedules...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Students -->
+                <div class="dashboard-card students-card-medium">
+                    <div class="card-header">
+                        <h3><i class="fas fa-users"></i> Students</h3>
+                        <a href="#students" class="view-all">View All</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="studentsList" class="students-list">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading students...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Section -->
+        <div class="content-section" id="students-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-users"></i> Student Management</h2>
+                <button class="btn-primary" onclick="openModal('addStudentModal')">
+                    <i class="fas fa-user-plus"></i> Add Student
+                </button>
+            </div>
+            <div class="students-container">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Face Registered</th>
+                                <th>Attendance Rate</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable">
+                            <tr><td colspan="5" class="loading-cell">
+                                <div class="spinner"></div> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Section -->
+        <div class="content-section" id="attendance-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-clipboard-check"></i> Attendance Management</h2>
+                <div class="header-actions-group">
+                    <button class="btn-secondary" onclick="openModal('filterAttendanceModal')">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <button class="btn-primary" onclick="openModal('downloadReportModal')">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+            <div class="attendance-management-container">
+                <div class="attendance-filters">
+                    <div class="filter-group">
+                        <label>Date Range</label>
+                        <div class="date-range">
+                            <input type="date" id="attendanceStartDate">
+                            <span>to</span>
+                            <input type="date" id="attendanceEndDate">
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label>Student</label>
+                        <select id="attendanceStudentFilter">
+                            <option value="">All Students</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Class</label>
+                        <select id="attendanceClassFilter">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="applyAttendanceFilters()">
+                        <i class="fas fa-search"></i> Apply
+                    </button>
+                </div>
+                <div class="attendance-analytics">
+                    <div class="analytics-card">
+                        <h4>Daily Attendance Trend</h4>
+                        <div id="attendanceChart" class="chart-container">
+                            <canvas id="attendanceTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Student-wise Attendance</h4>
+                        <div id="studentAttendanceChart" class="chart-container">
+                            <canvas id="studentWiseChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Student</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Check-in Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTable">
+                            <tr><td colspan="5" class="loading-cell">
+                                <div class="spinner"></div> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedules Section -->
+        <div class="content-section" id="schedules-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-days"></i> Class Schedules</h2>
+                <button class="btn-primary" onclick="openModal('addScheduleModal')">
+                    <i class="fas fa-calendar-plus"></i> Add Schedule
+                </button>
+            </div>
+            <div class="schedules-container">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Room</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedulesTable">
+                            <tr><td colspan="5" class="loading-cell">
+                                <div class="spinner"></div> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Homework Section -->
+        <div class="content-section" id="homework-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-book-open"></i> Homework Management</h2>
+                <button class="btn-primary" onclick="openModal('addHomeworkModal')">
+                    <i class="fas fa-plus-circle"></i> Add Homework
+                </button>
+            </div>
+            <div class="homework-container">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Subject</th>
+                                <th>Due Date</th>
+                                <th>Submissions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="homeworkTable">
+                            <tr><td colspan="5" class="loading-cell">
+                                <div class="spinner"></div> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quizzes Section -->
+        <div class="content-section" id="quizzes-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-file-pen"></i> Quiz Management</h2>
+                <button class="btn-primary" onclick="openModal('addQuizModal')">
+                    <i class="fas fa-file-circle-plus"></i> Add Quiz
+                </button>
+            </div>
+            <div class="quizzes-container">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Duration</th>
+                                <th>Questions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quizzesTable">
+                            <tr><td colspan="6" class="loading-cell">
+                                <div class="spinner"></div> Loading...
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restrictions Section -->
+        <div class="content-section" id="restrictions-section" style="display: none;">
+            <div class="section-header">
+                <h2><i class="fas fa-shield-halved"></i> Network & Location Restrictions</h2>
+                <p>Configure access controls for attendance marking</p>
+            </div>
+            <div class="restrictions-container">
+                <div class="restriction-card">
+                    <div class="restriction-header">
+                        <div class="restriction-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div class="restriction-info">
+                            <h3>Network Restriction</h3>
+                            <p>Restrict attendance to specific IP ranges or WiFi networks</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="networkRestrictionToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="restriction-content" id="networkSettings" style="display: none;">
+                        <div class="form-group">
+                            <label>Allowed IP Ranges</label>
+                            <div class="tag-input" id="ipRangesInput">
+                                <input type="text" placeholder="Enter IP range (e.g., 192.168.1.)" id="ipRangeInput">
+                                <button onclick="addIpRange()">Add</button>
+                            </div>
+                            <div class="tags-list" id="ipRangesList"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Allowed WiFi Networks</label>
+                            <div class="tag-input" id="wifiInput">
+                                <input type="text" placeholder="Enter WiFi SSID" id="wifiInput">
+                                <button onclick="addWifiNetwork()">Add</button>
+                            </div>
+                            <div class="tags-list" id="wifiNetworksList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="restriction-card">
+                    <div class="restriction-header">
+                        <div class="restriction-icon">
+                            <i class="fas fa-location-dot"></i>
+                        </div>
+                        <div class="restriction-info">
+                            <h3>Location Restriction</h3>
+                            <p>Restrict attendance to a specific geographic area</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="locationRestrictionToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="restriction-content" id="locationSettings" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Latitude</label>
+                                <input type="number" step="any" id="allowedLatitude" placeholder="e.g., 28.6139">
+                            </div>
+                            <div class="form-group">
+                                <label>Longitude</label>
+                                <input type="number" step="any" id="allowedLongitude" placeholder="e.g., 77.2090">
+                            </div>
+                            <div class="form-group">
+                                <label>Radius (meters)</label>
+                                <input type="number" id="allowedRadius" value="100" min="10" max="10000">
+                            </div>
+                        </div>
+                        <div class="location-map" id="locationMap">
+                            <div class="map-placeholder">
+                                <i class="fas fa-map"></i>
+                                <p>Map view will be displayed here</p>
+                                <button class="btn-secondary" onclick="getCurrentLocation()">
+                                    <i class="fas fa-crosshairs"></i> Use Current Location
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="restriction-actions">
+                    <button class="btn-primary btn-large" onclick="saveRestrictionSettings()">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Student Modal -->
+    <div class="modal" id="addStudentModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Student</h3>
+                <button class="modal-close" onclick="closeModal('addStudentModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addStudentForm">
+                    <div class="form-group">
+                        <label for="studentName">Full Name</label>
+                        <input type="text" id="studentName" required placeholder="Enter student name">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentEmail">Email</label>
+                        <input type="email" id="studentEmail" required placeholder="Enter student email">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('addStudentModal')">Cancel</button>
+                <button class="btn-primary" id="confirmAddStudent">Add Student</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Face Registration Modal -->
+    <div class="modal" id="faceRegisterModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Register Face</h3>
+                <button class="modal-close" onclick="closeModal('faceRegisterModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="face-register-camera">
+                    <video id="faceRegisterVideo" autoplay playsinline></video>
+                    <canvas id="faceRegisterCanvas" style="display: none;"></canvas>
+                    <div class="face-guide">
+                        <div class="face-oval"></div>
+                        <div class="guide-text">Align face within the oval</div>
+                    </div>
+                </div>
+                <p class="camera-hint">Click capture to register the student's face</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('faceRegisterModal')">Cancel</button>
+                <button class="btn-primary" id="captureFaceBtn">
+                    <i class="fas fa-camera"></i> Capture
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Schedule Modal -->
+    <div class="modal" id="addScheduleModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Class Schedule</h3>
+                <button class="modal-close" onclick="closeModal('addScheduleModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addScheduleForm">
+                    <div class="form-group">
+                        <label for="scheduleSubject">Subject Name</label>
+                        <input type="text" id="scheduleSubject" required placeholder="e.g., Machine Learning">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="scheduleDay">Day</label>
+                            <select id="scheduleDay" required>
+                                <option value="0">Monday</option>
+                                <option value="1">Tuesday</option>
+                                <option value="2">Wednesday</option>
+                                <option value="3">Thursday</option>
+                                <option value="4">Friday</option>
+                                <option value="5">Saturday</option>
+                                <option value="6">Sunday</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleRoom">Room</label>
+                            <input type="text" id="scheduleRoom" placeholder="e.g., Lab 101">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="scheduleStartTime">Start Time</label>
+                            <input type="time" id="scheduleStartTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleEndTime">End Time</label>
+                            <input type="time" id="scheduleEndTime" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('addScheduleModal')">Cancel</button>
+                <button class="btn-primary" id="confirmAddSchedule">Add Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Homework Modal -->
+    <div class="modal" id="addHomeworkModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Homework</h3>
+                <button class="modal-close" onclick="closeModal('addHomeworkModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addHomeworkForm">
+                    <div class="form-group">
+                        <label for="hwTitle">Title</label>
+                        <input type="text" id="hwTitle" required placeholder="Homework title">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="hwSubject">Subject</label>
+                            <input type="text" id="hwSubject" required placeholder="Subject name">
+                        </div>
+                        <div class="form-group">
+                            <label for="hwDueDate">Due Date</label>
+                            <input type="date" id="hwDueDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="hwDescription">Description</label>
+                        <textarea id="hwDescription" rows="3" placeholder="Homework description..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Submission Options</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="hwAllowText" checked>
+                                <span>Allow text submission</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="hwAllowFile" checked>
+                                <span>Allow file upload</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('addHomeworkModal')">Cancel</button>
+                <button class="btn-primary" id="confirmAddHomework">Add Homework</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Quiz Modal -->
+    <div class="modal" id="addQuizModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Add Quiz</h3>
+                <button class="modal-close" onclick="closeModal('addQuizModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addQuizForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quizTitle">Title</label>
+                            <input type="text" id="quizTitle" required placeholder="Quiz title">
+                        </div>
+                        <div class="form-group">
+                            <label for="quizSubject">Subject</label>
+                            <input type="text" id="quizSubject" required placeholder="Subject name">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quizDate">Quiz Date</label>
+                            <input type="date" id="quizDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quizDuration">Duration (minutes)</label>
+                            <input type="number" id="quizDuration" value="60" min="5" max="180">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Questions</label>
+                        <div id="quizQuestionsContainer">
+                            <!-- Questions added dynamically -->
+                        </div>
+                        <button type="button" class="btn-secondary" onclick="addQuizQuestion()">
+                            <i class="fas fa-plus"></i> Add Question
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('addQuizModal')">Cancel</button>
+                <button class="btn-primary" id="confirmAddQuiz">Add Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Report Modal -->
+    <div class="modal" id="downloadReportModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Download Attendance Report</h3>
+                <button class="modal-close" onclick="closeModal('downloadReportModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="downloadReportForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reportStartDate">Start Date</label>
+                            <input type="date" id="reportStartDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="reportEndDate">End Date</label>
+                            <input type="date" id="reportEndDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reportStudent">Student (optional)</label>
+                        <select id="reportStudent">
+                            <option value="">All Students</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Format</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="reportFormat" value="csv" checked>
+                                <span><i class="fas fa-file-csv"></i> CSV</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="reportFormat" value="excel">
+                                <span><i class="fas fa-file-excel"></i> Excel</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('downloadReportModal')">Cancel</button>
+                <button class="btn-primary" id="confirmDownloadReport">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Submissions Modal -->
+    <div class="modal" id="viewSubmissionsModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Homework Submissions</h3>
+                <button class="modal-close" onclick="closeModal('viewSubmissionsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="submissionsList" class="submissions-list">
+                    <!-- Submissions loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade Submission Modal -->
+    <div class="modal" id="gradeSubmissionModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Grade Submission</h3>
+                <button class="modal-close" onclick="closeModal('gradeSubmissionModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="gradeSubmissionForm">
+                    <input type="hidden" id="gradeSubmissionId">
+                    <div class="form-group">
+                        <label>Student</label>
+                        <p id="gradeStudentName" class="form-static"></p>
+                    </div>
+                    <div class="form-group">
+                        <label>Submission</label>
+                        <div id="gradeSubmissionContent" class="submission-content-box"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gradeValue">Grade</label>
+                            <input type="text" id="gradeValue" placeholder="A, B, C, etc.">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="gradeFeedback">Feedback</label>
+                        <textarea id="gradeFeedback" rows="3" placeholder="Provide feedback..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('gradeSubmissionModal')">Cancel</button>
+                <button class="btn-primary" id="confirmGradeSubmission">Save Grade</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Schedule Modal -->
+    <div class="modal" id="editScheduleModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Schedule</h3>
+                <button class="modal-close" onclick="closeModal('editScheduleModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editScheduleForm">
+                    <input type="hidden" id="editScheduleId">
+                    <div class="form-group">
+                        <label for="editScheduleSubject">Subject Name</label>
+                        <input type="text" id="editScheduleSubject" required placeholder="e.g., Machine Learning">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editScheduleDay">Day</label>
+                            <select id="editScheduleDay" required>
+                                <option value="0">Monday</option>
+                                <option value="1">Tuesday</option>
+                                <option value="2">Wednesday</option>
+                                <option value="3">Thursday</option>
+                                <option value="4">Friday</option>
+                                <option value="5">Saturday</option>
+                                <option value="6">Sunday</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editScheduleRoom">Room</label>
+                            <input type="text" id="editScheduleRoom" placeholder="e.g., Lab 101">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editScheduleStartTime">Start Time</label>
+                            <input type="time" id="editScheduleStartTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editScheduleEndTime">End Time</label>
+                            <input type="time" id="editScheduleEndTime" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('editScheduleModal')">Cancel</button>
+                <button class="btn-primary" id="confirmEditSchedule">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Homework Modal -->
+    <div class="modal" id="editHomeworkModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Homework</h3>
+                <button class="modal-close" onclick="closeModal('editHomeworkModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editHomeworkForm">
+                    <input type="hidden" id="editHwId">
+                    <div class="form-group">
+                        <label for="editHwTitle">Title</label>
+                        <input type="text" id="editHwTitle" required placeholder="Homework title">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editHwSubject">Subject</label>
+                            <input type="text" id="editHwSubject" required placeholder="Subject name">
+                        </div>
+                        <div class="form-group">
+                            <label for="editHwDueDate">Due Date</label>
+                            <input type="date" id="editHwDueDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editHwDescription">Description</label>
+                        <textarea id="editHwDescription" rows="3" placeholder="Homework description..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Submission Options</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="editHwAllowText">
+                                <span>Allow text submission</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="editHwAllowFile">
+                                <span>Allow file upload</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('editHomeworkModal')">Cancel</button>
+                <button class="btn-primary" id="confirmEditHomework">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Quiz Modal -->
+    <div class="modal" id="editQuizModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Quiz</h3>
+                <button class="modal-close" onclick="closeModal('editQuizModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editQuizForm">
+                    <input type="hidden" id="editQuizId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editQuizTitle">Title</label>
+                            <input type="text" id="editQuizTitle" required placeholder="Quiz title">
+                        </div>
+                        <div class="form-group">
+                            <label for="editQuizSubject">Subject</label>
+                            <input type="text" id="editQuizSubject" required placeholder="Subject name">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editQuizDate">Quiz Date</label>
+                            <input type="date" id="editQuizDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editQuizDuration">Duration (minutes)</label>
+                            <input type="number" id="editQuizDuration" value="60" min="5" max="180">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('editQuizModal')">Cancel</button>
+                <button class="btn-primary" id="confirmEditQuiz">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Questions Modal -->
+    <div class="modal" id="manageQuestionsModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Manage Quiz Questions</h3>
+                <button class="modal-close" onclick="closeModal('manageQuestionsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="manageQuestionsList">
+                    <!-- Existing questions loaded dynamically -->
+                </div>
+                <div class="add-question-section">
+                    <h4>Add New Question</h4>
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <textarea id="newQuestionText" rows="2" placeholder="Enter question..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Question Type</label>
+                            <select id="newQuestionType">
+                                <option value="mcq">Multiple Choice</option>
+                                <option value="descriptive">Descriptive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Marks</label>
+                            <input type="number" id="newQuestionMarks" value="1" min="1">
+                        </div>
+                    </div>
+                    <div class="form-group" id="mcqOptionsContainer">
+                        <label>Options (one per line)</label>
+                        <textarea id="newQuestionOptions" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3&#10;Option 4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Correct Answer</label>
+                        <input type="text" id="newQuestionCorrectAnswer" placeholder="Enter correct answer">
+                    </div>
+                    <button class="btn-secondary" onclick="addNewQuestionToQuiz()">
+                        <i class="fas fa-plus"></i> Add Question
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeModal('manageQuestionsModal')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const teacherId = {{ user.id }};
+    </script>
+    <script src="{{ url_for('static', filename='js/teacher_dashboard.js') }}"></script>
+</body>
+</html>
